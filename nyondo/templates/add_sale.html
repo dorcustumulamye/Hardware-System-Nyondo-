@@ -1,0 +1,82 @@
+{% extends 'base.html' %}{% block content %}
+<div class="card shadow-sm p-4">
+  <h2 class="mb-4">Sales Registration Form</h2>
+  {% if error %}
+  <div class="alert alert-danger" role="alert">{{ error }}</div>
+  {% endif %}
+  <form method="POST" action="{% url 'add_sale' %}">
+    {% csrf_token %}
+    <h5 class="mb-3">Customer Information</h5>
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <label class="form-label">Customer Name</label
+        ><input
+          type="text"
+          name="customer_name"
+          class="form-control"
+          placeholder="Enter customer name"
+          required
+        />
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Payment Method</label
+        ><select name="payment_method" class="form-select" required>
+          <option value="">Select Payment Method</option>
+          <option value="Cash">Cash</option>
+          <option value="Mobile Money">Mobile Money</option>
+          <option value="Bank Transfer">Bank Transfer</option>
+          <option value="Credit">Credit</option>
+        </select>
+      </div>
+    </div>
+    <h5 class="mb-3 mt-4">Product Details</h5>
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <label class="form-label">Product Name</label
+        ><select name="product" class="form-select" required>
+          <option value="">Select Product</option>
+          {% for product in products %}
+          <option value="{{ product.id }}">
+            {{ product.product_name }} - UGX {{ product.unit_price }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Quantity</label
+        ><input
+          type="number"
+          name="quantity"
+          class="form-control"
+          min="1"
+          required
+        />
+      </div>
+    </div>
+    <h5 class="mb-3 mt-4">Transport Details</h5>
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <label class="form-label">Distance (KM)</label
+        ><input
+          type="number"
+          name="distance_km"
+          class="form-control"
+          step="0.01"
+          min="0"
+          value="0"
+        />
+      </div>
+      <div class="col-md-6 d-flex align-items-center">
+        <div class="form-check mt-4">
+          <input
+            type="checkbox"
+            name="transport_required"
+            class="form-check-input"
+          /><label class="form-check-label">Transport Required</label>
+        </div>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-dark">Save Sale</button>
+  </form>
+</div>
+{% endblock %}

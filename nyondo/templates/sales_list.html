@@ -1,0 +1,59 @@
+{% extends 'base.html' %}{% block content %}
+<div class="card shadow-sm p-4">
+  <h2 class="mb-4">Sales List</h2>
+  <div class="d-flex justify-content-between mb-3">
+    <a href="{% url 'add_sale' %}" class="btn btn-dark">Add Sale</a
+    ><a href="{% url 'stock_list' %}" class="btn btn-secondary">View Stock</a>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>Customer</th>
+          <th>Product</th>
+          <th>Quantity</th>
+          <th>Unit Price</th>
+          <th>Sub Total</th>
+          <th>Transport</th>
+          <th>Transport Fee</th>
+          <th>Total Price</th>
+          <th>Payment Method</th>
+          <th>Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sale in sales %}
+        <tr>
+          <td>{{ sale.customer_name }}</td>
+          <td>{{ sale.product.product_name }}</td>
+          <td>{{ sale.quantity }}</td>
+          <td>{{ sale.product.unit_price }}</td>
+          <td>{{ sale.sub_total }}</td>
+          <td>{% if sale.transport_required %}Yes{% else %}No{% endif %}</td>
+          <td>{{ sale.transport_fee }}</td>
+          <td>{{ sale.total_price }}</td>
+          <td>{{ sale.payment_method }}</td>
+          <td>{{ sale.date }}</td>
+          <td>
+            <a
+              href="{% url 'sales_receipt' sale.id %}"
+              class="btn btn-sm btn-primary"
+              >Receipt</a
+            ><a
+              href="{% url 'edit_sale' sale.id %}"
+              class="btn btn-sm btn-warning"
+              >Edit</a
+            >
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="11" class="text-center">No sales recorded yet.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

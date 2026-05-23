@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="card shadow-sm p-4">
+
+<h2 class="mb-4">Edit Sale</h2>
+
+<form method="POST">
+
+{% csrf_token %}
+
+<h5 class="mb-3">Customer Information</h5>
+
+<div class="row mb-3">
+
+<div class="col-md-6">
+<label class="form-label">Customer Name</label>
+<input type="text" name="customer_name" class="form-control" value="{{ sale.customer_name }}" required>
+</div>
+
+<div class="col-md-6">
+<label class="form-label">Payment Method</label>
+
+<select name="payment_method" class="form-select" required>
+
+<option value="Cash" {% if sale.payment_method == 'Cash' %}selected{% endif %}>Cash</option>
+
+<option value="Mobile Money" {% if sale.payment_method == 'Mobile Money' %}selected{% endif %}>Mobile Money</option>
+
+<option value="Bank Transfer" {% if sale.payment_method == 'Bank Transfer' %}selected{% endif %}>Bank Transfer</option>
+
+<option value="Credit" {% if sale.payment_method == 'Credit' %}selected{% endif %}>Credit</option>
+
+</select>
+
+</div>
+
+</div>
+
+<h5 class="mb-3 mt-4">Product Details</h5>
+
+<div class="row mb-3">
+
+<div class="col-md-6">
+
+<label class="form-label">Product Name</label>
+
+<select name="product" class="form-select" required>
+
+{% for product in products %}
+
+<option value="{{ product.id }}" {% if sale.product.id == product.id %}selected{% endif %}>
+
+{{ product.product_name }} - UGX {{ product.unit_price }} - Qty: {{ product.quantity_delivered }}
+
+</option>
+
+{% endfor %}
+
+</select>
+
+</div>
+
+<div class="col-md-6">
+
+<label class="form-label">Quantity</label>
+
+<input type="number" name="quantity" class="form-control" min="1" value="{{ sale.quantity }}" required>
+
+</div>
+
+</div>
+
+<h5 class="mb-3 mt-4">Transport Details</h5>
+
+<div class="row mb-4">
+
+<div class="col-md-6">
+
+<label class="form-label">Distance (KM)</label>
+
+<input type="number" name="distance_km" class="form-control" step="0.01" min="0" value="{{ sale.distance_km }}">
+
+</div>
+
+<div class="col-md-6 d-flex align-items-center">
+
+<div class="form-check mt-4">
+
+<input type="checkbox" name="transport_required" class="form-check-input" {% if sale.transport_required %}checked{% endif %}>
+
+<label class="form-check-label">Transport Required</label>
+
+</div>
+
+</div>
+
+</div>
+
+<button type="submit" class="btn btn-dark">
+Update Sale
+</button>
+
+<a href="{% url 'sales_list' %}" class="btn btn-secondary">
+Cancel
+</a>
+
+</form>
+
+</div>
+
+{% endblock %}

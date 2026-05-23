@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="card shadow-sm p-4 mx-auto" style="max-width: 700px;">
+
+<h2 class="text-center mb-1">Nyondo General Hardware Ltd</h2>
+<p class="text-center mb-4">Sales Receipt</p>
+
+<hr>
+
+<p><strong>Receipt No:</strong> {{ sale.id }}</p>
+<p><strong>Date:</strong> {{ sale.date }}</p>
+<p><strong>Customer:</strong> {{ sale.customer_name }}</p>
+
+<table class="table table-bordered mt-4">
+<thead class="table-dark">
+<tr>
+<th>Product</th>
+<th>Qty</th>
+<th>Unit Price</th>
+<th>Subtotal</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>{{ sale.product.product_name }}</td>
+<td>{{ sale.quantity }}</td>
+<td>{{ sale.product.unit_price }}</td>
+<td>{{ sale.sub_total }}</td>
+</tr>
+</tbody>
+</table>
+
+<p><strong>Transport Required:</strong> {% if sale.transport_required %}Yes{% else %}No{% endif %}</p>
+<p><strong>Distance:</strong> {{ sale.distance_km }} KM</p>
+<p><strong>Transport Fee:</strong> {{ sale.transport_fee }}</p>
+<p><strong>Payment Method:</strong> {{ sale.payment_method }}</p>
+
+<h4 class="text-end mt-4">Total: UGX {{ sale.total_price }}</h4>
+
+<div class="text-center mt-4">
+<button onclick="window.print()" class="btn btn-dark">Print Receipt</button>
+<a href="{% url 'sales_list' %}" class="btn btn-secondary">Back</a>
+</div>
+
+</div>
+
+{% endblock %}

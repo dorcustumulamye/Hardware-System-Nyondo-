@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="card shadow-sm p-4">
+
+<h2 class="mb-4">Stock List</h2>
+
+<a href="{% url 'add_stock' %}" class="btn btn-dark mb-3">
+Add Stock
+</a>
+
+<div class="table-responsive">
+
+<table class="table table-bordered table-hover align-middle">
+
+<thead class="table-dark">
+
+<tr>
+<th>Supplier</th>
+<th>Category</th>
+<th>Product</th>
+<th>Quantity</th>
+<th>Unit Cost</th>
+<th>Unit Price</th>
+<th>Total Value</th>
+<th>Payment Status</th>
+<th>Payment Type</th>
+<th>Date Added</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for stock in stocks %}
+
+<tr>
+
+<td>{{ stock.supplier }}</td>
+
+<td>{{ stock.category }}</td>
+
+<td>{{ stock.product_name }}</td>
+
+<td>{{ stock.quantity_delivered }}</td>
+
+<td>{{ stock.unit_cost }}</td>
+
+<td>{{ stock.unit_price }}</td>
+
+<td>{{ stock.total_value_goods }}</td>
+
+<td>{{ stock.supplier_payment_status }}</td>
+
+<td>{{ stock.payment_type }}</td>
+
+<td>{{ stock.date_added }}</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+
+<td colspan="10" class="text-center">
+No stock available.
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+{% endblock %}

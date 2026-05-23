@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="card shadow-sm p-4">
+
+<h2 class="mb-4">Stock Report</h2>
+
+<div class="table-responsive">
+
+<table class="table table-bordered table-hover align-middle">
+
+<thead class="table-dark">
+<tr>
+<th>Product</th>
+<th>Category</th>
+<th>Supplier</th>
+<th>Qty Received</th>
+<th>Qty Sold</th>
+<th>Remaining Qty</th>
+<th>Unit Cost</th>
+<th>Remaining Value</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for stock in stocks %}
+<tr>
+<td>{{ stock.product_name }}</td>
+<td>{{ stock.category }}</td>
+<td>{{ stock.supplier }}</td>
+<td>{{ stock.quantity_delivered }}</td>
+<td>{{ stock.quantity_sold }}</td>
+<td>{{ stock.remaining_quantity }}</td>
+<td>{{ stock.unit_cost }}</td>
+<td>{{ stock.remaining_value }}</td>
+</tr>
+{% empty %}
+<tr>
+<td colspan="8" class="text-center">No stock records available.</td>
+</tr>
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+{% endblock %}

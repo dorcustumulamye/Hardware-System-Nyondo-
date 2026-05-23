@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="card shadow-sm p-4">
+
+<h2 class="mb-4">Add Stock</h2>
+
+<form method="POST" action="{% url 'add_stock' %}">
+
+{% csrf_token %}
+
+<div class="row mb-3">
+
+<div class="col-md-6">
+<label class="form-label">Supplier</label>
+<input type="text" name="supplier" class="form-control" required>
+</div>
+
+<div class="col-md-6">
+<label class="form-label">Category</label>
+
+<select name="category" class="form-select" required>
+
+<option value="">Select Category</option>
+
+<option value="Building Materials">Building Materials</option>
+
+<option value="Paint & Finishes">Paint & Finishes</option>
+
+<option value="Fasteners">Fasteners</option>
+
+<option value="Tools & Equipment">Tools & Equipment</option>
+
+<option value="Steel & Metal Products">Steel & Metal Products</option>
+
+<option value="Others">Others</option>
+
+</select>
+
+</div>
+
+</div>
+
+<div class="row mb-3">
+
+<div class="col-md-6">
+
+<label class="form-label">Product Name</label>
+
+<select name="product_name" class="form-select" required>
+
+<option value="">Select Product</option>
+
+<option value="CEM IIN">Cement -- CEM IIN</option>
+
+<option value="CEM IIIN">Cement -- CEM IIIN</option>
+
+<option value="BAR 10MM">Iron Bar -- 10MM</option>
+
+<option value="BAR 12MM">Iron Bar -- 12MM</option>
+
+<option value="BAR 16MM">Iron Bar -- 16MM</option>
+
+<option value="NAIL 0001">Nails -- 1 inch</option>
+
+<option value="NAIL 0003">Nails -- 3 inch</option>
+
+<option value="NAIL 0004">Nails -- 4 inch</option>
+
+<option value="NAIL 0005">Nails -- 5 inch</option>
+
+<option value="ROOF NAIL">Roofing Nails</option>
+
+<option value="BARBED HIGH">Barbed Wire -- High Tensile</option>
+
+<option value="BARBED LOW">Barbed Wire -- Low Tensile</option>
+
+<option value="Wheelbarrows">Wheelbarrows</option>
+
+<option value="Wire mesh">Wire mesh</option>
+
+<option value="Iron sheets">Iron sheets</option>
+
+</select>
+
+</div>
+
+<div class="col-md-6">
+<label class="form-label">Quantity Delivered</label>
+<input type="number" name="quantity_delivered" class="form-control" min="1" required>
+</div>
+
+</div>
+
+<div class="row mb-3">
+
+<div class="col-md-6">
+<label class="form-label">Unit Cost</label>
+<input type="number" name="unit_cost" class="form-control" step="0.01" min="0" required>
+</div>
+
+<div class="col-md-6">
+<label class="form-label">Unit Price</label>
+<input type="number" name="unit_price" class="form-control" step="0.01" min="0" required>
+</div>
+
+</div>
+
+<div class="row mb-4">
+
+<div class="col-md-6">
+
+<label class="form-label">
+Supplier Payment Status
+</label>
+
+<select name="supplier_payment_status" class="form-select" required>
+
+<option value="Paid">
+Paid
+</option>
+
+<option value="Not Paid">
+Not Paid
+</option>
+
+</select>
+
+</div>
+
+<div class="col-md-6">
+
+<label class="form-label">
+Payment Type
+</label>
+
+<select name="payment_type" class="form-select">
+
+<option value="">
+Select Payment Type
+</option>
+
+<option value="Cash">
+Cash
+</option>
+
+<option value="Mobile Money">
+Mobile Money
+</option>
+
+<option value="Bank Transfer">
+Bank Transfer
+</option>
+
+<option value="Credit">
+Credit
+</option>
+
+</select>
+
+</div>
+
+</div>
+
+<button type="submit" class="btn btn-dark">
+Save Stock
+</button>
+
+</form>
+
+</div>
+
+{% endblock %}
