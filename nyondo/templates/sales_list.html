@@ -2,8 +2,7 @@
 <div class="card shadow-sm p-4">
   <h2 class="mb-4">Sales List</h2>
   <div class="d-flex justify-content-between mb-3">
-    <a href="{% url 'add_sale' %}" class="btn btn-dark">Add Sale</a
-    ><a href="{% url 'stock_list' %}" class="btn btn-secondary">View Stock</a>
+    <a href="{% url 'add_sale' %}" class="btn btn-dark">Add Sale</a>
   </div>
   <div class="table-responsive">
     <table class="table table-bordered table-hover align-middle">
@@ -43,8 +42,7 @@
             ><a
               href="{% url 'edit_sale' sale.id %}"
               class="btn btn-sm btn-warning"
-              >Edit</a
-            >
+              >Edit</a> 
           </td>
         </tr>
         {% empty %}
