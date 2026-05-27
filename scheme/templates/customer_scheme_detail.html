@@ -108,6 +108,7 @@
             <th>Date</th>
             <th>Product</th>
             <th>Quantity</th>
+            <th>Goods Value</th>
             <th>Linked Sale</th>
         </tr>
     </thead>
@@ -119,7 +120,7 @@
             <td>{{ pickup.pickup_date|date:"j F Y, H:i" }}</td>
             <td>{{ pickup.product.product_name }}</td>
             <td>{{ pickup.quantity_taken }}</td>
-
+            <td>{% if pickup.linked_sale %}{{ pickup.linked_sale.total_price }}{% endif %}</td>
             <td>
                 {% if pickup.linked_sale %}
                     <a href="{% url 'sales_receipt' pickup.linked_sale.id %}"

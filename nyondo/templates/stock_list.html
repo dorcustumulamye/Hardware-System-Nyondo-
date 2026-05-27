@@ -27,6 +27,7 @@ Add Stock
 <th>Payment Status</th>
 <th>Payment Type</th>
 <th>Date Added</th>
+<th>Actions</th>
 </tr>
 
 </thead>
@@ -56,6 +57,21 @@ Add Stock
 <td>{{ stock.payment_type }}</td>
 
 <td>{{ stock.date_added }}</td>
+
+<td>
+
+<a href="{% url 'edit_stock' stock.id %}" class="btn btn-sm btn-outline-primary">
+    Edit
+</a>
+
+<a href="{% url 'stock_receipt_list' %}" class="btn btn-secondary">
+    Stock Receipts
+</a>
+
+<a href="{% url 'stock_report' %}" class="btn btn-info">
+    Stock Report
+</a>
+</td>
 
 </tr>
 

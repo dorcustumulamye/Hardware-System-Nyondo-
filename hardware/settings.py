@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'nyondo',
     'scheme',
     'users',
+    'django.contrib.humanize',
+    
 ]
 
 MIDDLEWARE = [

@@ -4,6 +4,7 @@ from django.db.models.functions import Coalesce
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login
 from .models import Sale, Stock
+from .models import StockReceipt
 
 
 
@@ -69,9 +70,76 @@ def stock_list(request):
         'stock_list.html',
         {'stocks': stocks}
     )
-       
 
 
+def stock_receipt_list(request):
+    receipts = StockReceipt.objects.all().order_by("-date_received")
+    return render(request, "stock_receipt_list.html", {
+        "receipts": receipts
+    })
+
+
+def create_stock_receipt(request):
+    products = Stock.objects.all()
+
+    if request.method == "POST":
+        product = get_object_or_404(Stock, id=request.POST.get("product"))
+
+        receipt = StockReceipt.objects.create(
+            product=product,
+            supplier_name=request.POST.get("supplier_name"),
+            quantity_received=int(request.POST.get("quantity_received")),
+            unit_cost=float(request.POST.get("unit_cost")),
+            supplier_paid=request.POST.get("supplier_paid") == "on"
+        )
+
+        return redirect("goods_received_note", receipt_id=receipt.id)
+
+    return render(request, "create_stock_receipt.html", {
+        "products": products
+    })
+
+
+def goods_received_note(request, receipt_id):
+    receipt = get_object_or_404(StockReceipt, id=receipt_id)
+
+    return render(request, "goods_received_note.html", {
+        "receipt": receipt
+    })
+
+
+def edit_stock_receipt(request, receipt_id):
+    receipt = get_object_or_404(StockReceipt, id=receipt_id)
+    products = Stock.objects.all()
+
+    if request.method == "POST":
+        product = get_object_or_404(Stock, id=request.POST.get("product"))
+
+        receipt.product = product
+        receipt.supplier_name = request.POST.get("supplier_name")
+        receipt.quantity_received = int(request.POST.get("quantity_received"))
+        receipt.unit_cost = float(request.POST.get("unit_cost"))
+        receipt.supplier_paid = request.POST.get("supplier_paid") == "on"
+        receipt.save()
+
+        return redirect("goods_received_note", receipt_id=receipt.id)
+
+    return render(request, "edit_stock_receipt.html", {
+        "receipt": receipt,
+        "products": products
+    })
+
+
+def delete_stock_receipt(request, receipt_id):
+    receipt = get_object_or_404(StockReceipt, id=receipt_id)
+
+    if request.method == "POST":
+        receipt.delete()
+        return redirect("stock_receipt_list")
+
+    return render(request, "delete_stock_receipt.html", {
+        "receipt": receipt
+    })
 
 #Views for sales
 def sales_list(request):
@@ -181,6 +249,56 @@ def stock_report(request):
     )
 
     return render(request, 'stock_report.html', {'stocks': stocks})
+
+
+def sales_report(request):
+    sales = Sale.objects.all().order_by("-date")
+
+    start_date = request.GET.get("start_date")
+    end_date = request.GET.get("end_date")
+
+    if start_date:
+        sales = sales.filter(date__gte=start_date)
+
+    if end_date:
+        sales = sales.filter(date__lte=end_date)
+
+    total_sales_amount = sales.aggregate(
+        total=Sum("total_price")
+    )["total"] or 0
+
+    total_quantity_sold = sales.aggregate(
+        total=Sum("quantity")
+    )["total"] or 0
+
+    return render(request, "sales_report.html", {
+        "sales": sales,
+        "start_date": start_date,
+        "end_date": end_date,
+        "total_sales_amount": total_sales_amount,
+        "total_quantity_sold": total_quantity_sold,
+    })
+
+def edit_stock(request, pk):
+    stock = get_object_or_404(Stock, id=pk)
+
+    if request.method == "POST":
+        stock.supplier = request.POST.get("supplier")
+        stock.category = request.POST.get("category")
+        stock.product_name = request.POST.get("product_name")
+        stock.quantity_delivered = int(request.POST.get("quantity_delivered"))
+        stock.unit_cost = Decimal(request.POST.get("unit_cost"))
+        stock.unit_price = Decimal(request.POST.get("unit_price"))
+        stock.supplier_payment_status = request.POST.get("supplier_payment_status")
+        stock.payment_type = request.POST.get("payment_type")
+
+        stock.save()
+
+        return redirect("stock_list")
+
+    return render(request, "stock_edit.html", {"stock": stock})
+
+
 
 
 
