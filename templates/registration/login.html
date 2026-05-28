@@ -1,349 +1,121 @@
 {% extends 'auth_base.html' %}
 {% load static %}
 
+{% block title %}Login | Nyondo Hardware{% endblock %}
+
 {% block content %}
 
 <style>
-
-  /* =========================
-      REMOVE SCROLLBAR
-  ========================== */
-  body {
-    overflow: hidden;
-  }
-
-  /* =========================
-      BACKGROUND SLIDESHOW
-  ========================== */
-  .bg-slideshow {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    overflow: hidden;
-  }
-
-  .bg-slide {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-
-    background-size: cover;
-    background-position: center;
-
-    opacity: 0;
-
-    animation: fade 18s infinite;
-  }
-
-  .bg1 {
-    background-image: url("{% static 'hardware2.jpg' %}");
-    animation-delay: 0s;
-  }
-
-  .bg2 {
-    background-image: url("{% static 'hardware3.jpg' %}");
-    animation-delay: 6s;
-  }
-
-  .bg3 {
-    background-image: url("{% static 'hardware2.jpg' %}");
-    animation-delay: 12s;
-  }
-
-  @keyframes fade {
-
-    0% {
-      opacity: 0;
+    .login-title {
+        text-align: center;
+        color: #d97706;
+        font-weight: bold;
+        margin-bottom: 10px;
     }
 
-    10% {
-      opacity: 1;
+    .login-subtitle {
+        text-align: center;
+        color: #4b2e05;
+        font-size: 14px;
+        margin-bottom: 25px;
     }
 
-    30% {
-      opacity: 1;
+    .form-label {
+        font-weight: 600;
+        color: #4b2e05;
     }
 
-    40% {
-      opacity: 0;
+    .form-control {
+        border-radius: 8px;
+        padding: 10px;
     }
 
-    100% {
-      opacity: 0;
-    }
-  }
-
-  /* =========================
-      DARK OVERLAY
-  ========================== */
-  .overlay {
-    position: fixed;
-    inset: 0;
-
-    background: linear-gradient(
-      135deg,
-      rgba(0, 0, 0, 0.75),
-      rgba(15, 15, 40, 0.85)
-    );
-
-    z-index: 1;
-  }
-
-  /* =========================
-      KEEP NAVBAR ABOVE EVERYTHING
-  ========================== */
-  .navbar {
-    position: relative;
-    z-index: 1000;
-  }
-
-  /* =========================
-      CENTER LOGIN CARD PERFECTLY
-  ========================== */
-  .page {
-
-    position: fixed;
-
-    top: 56px;
-    left: 0;
-    right: 0;
-    bottom: 0;
-
-    z-index: 2;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    padding: 20px;
-  }
-
-  /* =========================
-      LOGIN CARD
-  ========================== */
-  .login-card {
-
-    width: 100%;
-    max-width: 420px;
-
-    padding: 40px;
-
-    border-radius: 22px;
-
-    background: rgba(255, 255, 255, 0.10);
-
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-
-    border: 1px solid rgba(255, 255, 255, 0.15);
-
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
-
-    color: white;
-  }
-
-  /* =========================
-      TITLE
-  ========================== */
-  .login-card h2 {
-
-    text-align: center;
-
-    font-size: 34px;
-    font-weight: 800;
-
-    line-height: 1.1;
-
-    margin-bottom: 10px;
-
-    color: white;
-  }
-
-  .login-card p {
-
-    text-align: center;
-
-    font-size: 14px;
-
-    opacity: 0.85;
-
-    margin-bottom: 28px;
-  }
-
-  /* =========================
-      LABELS
-  ========================== */
-  .login-card label {
-
-    display: block;
-
-    margin-bottom: 8px;
-
-    font-size: 14px;
-
-    font-weight: 500;
-  }
-
-  /* =========================
-      INPUTS
-  ========================== */
-  .login-card input {
-
-    width: 100%;
-
-    padding: 14px 16px;
-
-    margin-bottom: 20px;
-
-    border: none;
-    outline: none;
-
-    border-radius: 14px;
-
-    background: rgba(255, 255, 255, 0.14);
-
-    color: white;
-
-    font-size: 15px;
-  }
-
-  .login-card input::placeholder {
-    color: rgba(255, 255, 255, 0.65);
-  }
-
-  /* =========================
-      BUTTON
-  ========================== */
-  .login-card button {
-
-    width: 100%;
-
-    padding: 14px;
-
-    border: none;
-
-    border-radius: 14px;
-
-    background: linear-gradient(
-      135deg,
-      #1fa2ff,
-      #1275ff
-    );
-
-    color: white;
-
-    font-weight: 700;
-
-    font-size: 15px;
-
-    cursor: pointer;
-
-    transition: 0.3s;
-  }
-
-  .login-card button:hover {
-    transform: scale(1.02);
-  }
-
-  /* =========================
-      FOOTER TEXT
-  ========================== */
-  .small {
-
-    text-align: center;
-
-    margin-top: 18px;
-
-    font-size: 12px;
-
-    opacity: 0.75;
-  }
-
-  /* =========================
-      MOBILE RESPONSIVE
-  ========================== */
-  @media (max-width: 576px) {
-
-    .login-card {
-      padding: 30px 25px;
+    .btn-login {
+        background-color: #d97706;
+        border: none;
+        color: white;
+        font-weight: bold;
+        border-radius: 8px;
+        padding: 10px;
+        width: 100%;
     }
 
-    .login-card h2 {
-      font-size: 28px;
+    .btn-login:hover {
+        background-color: #b45309;
+        color: white;
     }
 
-  }
+    .auth-small {
+        text-align: center;
+        margin-top: 18px;
+        font-size: 13px;
+        color: #8b5e3c;
+    }
 
+    .register-link {
+        text-align: center;
+        margin-top: 15px;
+        font-size: 14px;
+    }
+
+    .register-link a {
+        color: #d97706;
+        font-weight: bold;
+        text-decoration: none;
+    }
+
+    .register-link a:hover {
+        text-decoration: underline;
+    }
 </style>
 
-<!-- =========================
-    BACKGROUND SLIDESHOW
-========================= -->
-<div class="bg-slideshow">
+<h2 class="login-title">
+    NYONDO HARDWARE
+</h2>
 
-  <div class="bg-slide bg1"></div>
+<p class="login-subtitle">
+    Construction & Building Materials System
+</p>
 
-  <div class="bg-slide bg2"></div>
+<form method="POST">
+    {% csrf_token %}
 
-  <div class="bg-slide bg3"></div>
-
-</div>
-
-<!-- =========================
-    DARK OVERLAY
-========================= -->
-<div class="overlay"></div>
-
-<!-- =========================
-    LOGIN SECTION
-========================= -->
-<div class="page">
-
-  <div class="login-card">
-
-    <h2>
-      NYONDO<br>
-      HARDWARE
-    </h2>
-
-    <p>
-      Construction & Building Materials System
-    </p>
-
-    <form method="POST">
-
-      {% csrf_token %}
-
-      <label>Username</label>
-
-      <input
-        type="text"
-        name="username"
-        placeholder="Enter username"
-        required
-      >
-
-      <label>Password</label>
-
-      <input
-        type="password"
-        name="password"
-        placeholder="Enter password"
-        required
-      >
-
-      <button type="submit">
-        Login
-      </button>
-
-    </form>
-
-    <div class="small">
-      Authorized Staff Only • Nansana Uganda
+    <div class="mb-3">
+        <label class="form-label">Username</label>
+        <input
+            type="text"
+            name="username"
+            class="form-control"
+            placeholder="Enter username"
+            required
+        >
     </div>
 
-  </div>
+    <div class="mb-3">
+        <label class="form-label">Password</label>
+        <input
+            type="password"
+            name="password"
+            class="form-control"
+            placeholder="Enter password"
+            required
+        >
+    </div>
 
+    <button type="submit" class="btn btn-login">
+        Login
+    </button>
+</form>
+
+<div class="register-link">
+    Don’t have an account?
+    <a href="{% url 'register' %}">Register here</a>
+</div>
+
+<div class="auth-small">
+    Authorized Staff Only • Nansana Uganda
 </div>
 
 {% endblock %}
+
+

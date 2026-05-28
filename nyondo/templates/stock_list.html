@@ -17,10 +17,10 @@ Add Stock
 <thead class="table-dark">
 
 <tr>
-<th>Supplier</th>
+<th>Item Supplier</th>
 <th>Category</th>
 <th>Product</th>
-<th>Quantity</th>
+<th>Item Quantity</th>
 <th>Unit Cost</th>
 <th>Unit Price</th>
 <th>Total Value</th>
@@ -60,16 +60,8 @@ Add Stock
 
 <td>
 
-<a href="{% url 'edit_stock' stock.id %}" class="btn btn-sm btn-outline-primary">
+<a href="{% url 'edit_stock' stock.id %}" class="btn btn-sm btn-warning">
     Edit
-</a>
-
-<a href="{% url 'stock_receipt_list' %}" class="btn btn-secondary">
-    Stock Receipts
-</a>
-
-<a href="{% url 'stock_report' %}" class="btn btn-info">
-    Stock Report
 </a>
 </td>
 

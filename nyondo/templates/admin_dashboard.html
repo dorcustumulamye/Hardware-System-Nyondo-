@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2 class="mb-4">Admin Dashboard</h2>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h6>Total Sales</h6>
+        <h4>UGX {{ total_sales }}</h4>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h6>Quantity Sold</h6>
+        <h4>{{ total_quantity_sold }}</h4>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h6>Stock Items</h6>
+        <h4>{{ total_stock_items }}</h4>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h6>Stock Value</h6>
+        <h4>UGX {{ total_stock_value }}</h4>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h6>Scheme Customers</h6>
+        <h4>{{ total_scheme_customers }}</h4>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h6>Scheme Payments</h6>
+        <h4>UGX {{ total_scheme_payments }}</h4>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h6>Scheme Pickups</h6>
+        <h4>{{ total_scheme_pickups }}</h4>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h4>Recent Sales</h4>
+<table class="table table-bordered table-striped">
+  <thead>
+    <tr>
+      <th>Customer</th>
+      <th>Product</th>
+      <th>Quantity</th>
+      <th>Total</th>
+      <th>Date</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for sale in recent_sales %}
+    <tr>
+      <td>{{ sale.customer_name }}</td>
+      <td>{{ sale.product.product_name }}</td>
+      <td>{{ sale.quantity }}</td>
+      <td>UGX {{ sale.total_price }}</td>
+      <td>{{ sale.date }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="5">No recent sales.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h4>Recent Stock</h4>
+<table class="table table-bordered table-striped">
+  <thead>
+    <tr>
+      <th>Product</th>
+      <th>Supplier</th>
+      <th>Quantity</th>
+      <th>Date Added</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for stock in recent_stock %}
+    <tr>
+      <td>{{ stock.product_name }}</td>
+      <td>{{ stock.supplier }}</td>
+      <td>{{ stock.quantity_delivered }}</td>
+      <td>{{ stock.date_added }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="4">No stock records.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h4>Recent Scheme Customers</h4>
+<table class="table table-bordered table-striped">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>NIN</th>
+      <th>Phone</th>
+      <th>Date Registered</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for customer in recent_customers %}
+    <tr>
+      <td>{{ customer.full_name }}</td>
+      <td>{{ customer.nin_number }}</td>
+      <td>{{ customer.phone_number }}</td>
+      <td>{{ customer.date_registered }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="4">No scheme customers.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

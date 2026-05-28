@@ -4,6 +4,8 @@ from .models import SchemeCustomer, SchemePayment, SchemeGoodsPickup
 from django.db.models import Sum
 from nyondo.models import Stock
 import re
+from decimal import Decimal
+from django.contrib import messages
 
 # Create your views here.
 
@@ -14,22 +16,43 @@ def scheme_customer_list(request):
 
 def register_scheme_customer(request):
     if request.method == "POST":
-        full_name = request.POST.get("full_name")
-        nin_number = request.POST.get("nin_number")
-        phone_number = request.POST.get("phone_number")
-        address = request.POST.get("address")
-        occupation = request.POST.get("occupation")
-        employer_name = request.POST.get("employer_name")
+        full_name = request.POST.get("full_name", "").strip()
+        nin_number = request.POST.get("nin_number", "").strip().upper()
+        phone_number = request.POST.get("phone_number", "").strip()
+        address = request.POST.get("address", "").strip()
+        occupation = request.POST.get("occupation", "").strip()
+        employer_name = request.POST.get("employer_name", "").strip()
 
-        phone_pattern = r'^\d{10}$'
-        nin_pattern = r'^[A-Z0-9]{14}$'
-        if not re.match(phone_pattern, phone_number):
+        errors = {}
+
+        nin_pattern = r"^(CM|CF)[0-9]{10}[A-Z]{2}$"
+        phone_pattern = r"^07[0-9]{8}$"
+
+        if not full_name:
+            errors["full_name_error"] = "Full name is required."
+
+        if not nin_number:
+            errors["nin_error"] = "NIN number is required."
+        elif not re.match(nin_pattern, nin_number):
+            errors["nin_error"] = "Invalid NIN format. Use format like CM1234567890AB."
+        elif SchemeCustomer.objects.filter(nin_number=nin_number).exists():
+            errors["nin_error"] = "A customer with this NIN already exists."
+
+        if not phone_number:
+            errors["phone_error"] = "Phone number is required."
+        elif not re.match(phone_pattern, phone_number):
+            errors["phone_error"] = "Invalid phone number. Use format like 0781234567."
+
+        if not address:
+            errors["address_error"] = "Address is required."
+
+        if not occupation:
+            errors["occupation_error"] = "Occupation is required."
+
+        if errors:
             return render(request, "register_scheme_customer.html", {
-                "error": "Invalid phone number format. Please enter a 10-digit number."
-            })
-        if not re.match(nin_pattern, nin_number):
-            return render(request, "register_scheme_customer.html", {
-                "error": "Invalid NIN format. Please enter a 14-character alphanumeric string."
+                "errors": errors,
+                "form_data": request.POST
             })
 
         SchemeCustomer.objects.create(
@@ -39,11 +62,15 @@ def register_scheme_customer(request):
             address=address,
             occupation=occupation,
             employer_name=employer_name
-
         )
+
+        messages.success(request, "Scheme customer registered successfully.")
         return redirect("scheme_customer_list")
 
-    return render(request, "register_scheme_customer.html")
+    return render(request, "register_scheme_customer.html", {
+        "errors": {},
+        "form_data": {}
+    })
 
 
 def record_scheme_payment(request, customer_id):
@@ -100,34 +127,64 @@ def scheme_goods_pickup(request, customer_id):
     )
 
     if request.method == "POST":
-        product = get_object_or_404(Stock, id=request.POST.get("product"))
-        quantity = int(request.POST.get("quantity"))
 
-        total_received = Stock.objects.filter(
-            product_name=product
-        ).aggregate(total=Sum("quantity_delivered"))["total"] or 0
-
-        total_sold = Sale.objects.filter(
-            product=product
-        ).aggregate(total=Sum("quantity"))["total"] or 0
-
-        available_stock = total_received - total_sold
-
-        if quantity > available_stock:
-            return render(request, "scheme_goods_pickup.html", {
-                "customer": customer,
-                "products": products,
-                "error": f"Not enough stock. Available stock is {available_stock}."
-            })
-
-        total_price = product.unit_price * quantity
-
-        sale = Sale.objects.create(
-            product=product,
-            quantity=quantity,
-            total_price=total_price
+        product = get_object_or_404(
+            Stock,
+            id=request.POST.get("product")
         )
 
+        quantity = int(request.POST.get("quantity"))
+
+        # TOTAL STOCK RECEIVED
+        total_received = Stock.objects.filter(
+            product_name=product.product_name
+        ).aggregate(
+            total=Sum("quantity_delivered")
+        )["total"] or 0
+
+        # TOTAL STOCK SOLD
+        total_sold = Sale.objects.filter(
+            product=product
+        ).aggregate(
+            total=Sum("quantity")
+        )["total"] or 0
+
+        # AVAILABLE STOCK
+        available_stock = total_received - total_sold
+
+        # VALIDATE STOCK
+        if quantity > available_stock:
+
+            return render(
+                request,
+                "scheme_goods_pickup.html",
+                {
+                    "customer": customer,
+                    "products": products,
+                    "error": (
+                        f"Not enough stock available. "
+                        f"Current stock is {available_stock}."
+                    )
+                }
+            )
+
+        # CALCULATE TOTAL PRICE
+        sub_total = product.unit_price * Decimal(quantity)
+
+        # CREATE SALE RECORD
+        sale = Sale.objects.create(
+            customer_name=customer.full_name,
+            product=product,
+            quantity=quantity,
+            sub_total=sub_total,
+            payment_method="Scheme",
+            distance_km=Decimal("0"),
+            transport_required=False,
+            transport_fee=Decimal("0"),
+            total_price=sub_total
+        )
+
+        # CREATE GOODS PICKUP RECORD
         SchemeGoodsPickup.objects.create(
             customer=customer,
             product=product,
@@ -135,11 +192,16 @@ def scheme_goods_pickup(request, customer_id):
             linked_sale=sale
         )
 
-        return redirect("sales_receipt", sale_id=sale.id)
+        return redirect(
+            "sales_receipt",
+            sale_id=sale.id
+        )
 
-    return render(request, "scheme_goods_pickup.html", {
-        "customer": customer,
-        "products": products,
-    })
-
-# Create your views here.
+    return render(
+        request,
+        "scheme_goods_pickup.html",
+        {
+            "customer": customer,
+            "products": products,
+        }
+    )

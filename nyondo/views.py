@@ -4,7 +4,8 @@ from django.db.models.functions import Coalesce
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login
 from .models import Sale, Stock
-from .models import StockReceipt
+from scheme.models import SchemeCustomer, SchemePayment, SchemeGoodsPickup
+
 
 
 
@@ -70,76 +71,6 @@ def stock_list(request):
         'stock_list.html',
         {'stocks': stocks}
     )
-
-
-def stock_receipt_list(request):
-    receipts = StockReceipt.objects.all().order_by("-date_received")
-    return render(request, "stock_receipt_list.html", {
-        "receipts": receipts
-    })
-
-
-def create_stock_receipt(request):
-    products = Stock.objects.all()
-
-    if request.method == "POST":
-        product = get_object_or_404(Stock, id=request.POST.get("product"))
-
-        receipt = StockReceipt.objects.create(
-            product=product,
-            supplier_name=request.POST.get("supplier_name"),
-            quantity_received=int(request.POST.get("quantity_received")),
-            unit_cost=float(request.POST.get("unit_cost")),
-            supplier_paid=request.POST.get("supplier_paid") == "on"
-        )
-
-        return redirect("goods_received_note", receipt_id=receipt.id)
-
-    return render(request, "create_stock_receipt.html", {
-        "products": products
-    })
-
-
-def goods_received_note(request, receipt_id):
-    receipt = get_object_or_404(StockReceipt, id=receipt_id)
-
-    return render(request, "goods_received_note.html", {
-        "receipt": receipt
-    })
-
-
-def edit_stock_receipt(request, receipt_id):
-    receipt = get_object_or_404(StockReceipt, id=receipt_id)
-    products = Stock.objects.all()
-
-    if request.method == "POST":
-        product = get_object_or_404(Stock, id=request.POST.get("product"))
-
-        receipt.product = product
-        receipt.supplier_name = request.POST.get("supplier_name")
-        receipt.quantity_received = int(request.POST.get("quantity_received"))
-        receipt.unit_cost = float(request.POST.get("unit_cost"))
-        receipt.supplier_paid = request.POST.get("supplier_paid") == "on"
-        receipt.save()
-
-        return redirect("goods_received_note", receipt_id=receipt.id)
-
-    return render(request, "edit_stock_receipt.html", {
-        "receipt": receipt,
-        "products": products
-    })
-
-
-def delete_stock_receipt(request, receipt_id):
-    receipt = get_object_or_404(StockReceipt, id=receipt_id)
-
-    if request.method == "POST":
-        receipt.delete()
-        return redirect("stock_receipt_list")
-
-    return render(request, "delete_stock_receipt.html", {
-        "receipt": receipt
-    })
 
 #Views for sales
 def sales_list(request):
@@ -297,6 +228,109 @@ def edit_stock(request, pk):
         return redirect("stock_list")
 
     return render(request, "stock_edit.html", {"stock": stock})
+
+def admin_dashboard(request):
+    total_stock_items = Stock.objects.count()
+    total_stock_value = Stock.objects.aggregate(
+        total=Sum("total_value_goods")
+    )["total"] or 0
+
+    total_sales = Sale.objects.aggregate(
+        total=Sum("total_price")
+    )["total"] or 0
+
+    total_quantity_sold = Sale.objects.aggregate(
+        total=Sum("quantity")
+    )["total"] or 0
+
+    total_scheme_customers = SchemeCustomer.objects.count()
+    total_scheme_payments = SchemePayment.objects.aggregate(
+        total=Sum("amount_paid")
+    )["total"] or 0
+
+    total_scheme_pickups = SchemeGoodsPickup.objects.count()
+
+    recent_sales = Sale.objects.select_related("product").order_by("-date")[:5]
+    recent_stock = Stock.objects.order_by("-date_added")[:5]
+    recent_customers = SchemeCustomer.objects.order_by("-date_registered")[:5]
+
+    context = {
+        "total_stock_items": total_stock_items,
+        "total_stock_value": total_stock_value,
+        "total_sales": total_sales,
+        "total_quantity_sold": total_quantity_sold,
+        "total_scheme_customers": total_scheme_customers,
+        "total_scheme_payments": total_scheme_payments,
+        "total_scheme_pickups": total_scheme_pickups,
+        "recent_sales": recent_sales,
+        "recent_stock": recent_stock,
+        "recent_customers": recent_customers,
+    }
+
+    return render(request, "admin_dashboard.html", context)
+
+
+def sales_dashboard(request):
+    total_sales = Sale.objects.aggregate(
+        total=Sum("total_price")
+    )["total"] or 0
+
+    total_quantity_sold = Sale.objects.aggregate(
+        total=Sum("quantity")
+    )["total"] or 0
+
+    total_transactions = Sale.objects.count()
+
+    recent_sales = Sale.objects.select_related("product").order_by("-date")[:10]
+
+    top_products = Sale.objects.values(
+        "product__product_name"
+    ).annotate(
+        total_sold=Sum("quantity"),
+        total_revenue=Sum("total_price")
+    ).order_by("-total_sold")[:5]
+
+    context = {
+        "total_sales": total_sales,
+        "total_quantity_sold": total_quantity_sold,
+        "total_transactions": total_transactions,
+        "recent_sales": recent_sales,
+        "top_products": top_products,
+    }
+
+    return render(request, "sales_dashboard.html", context)
+
+
+def stock_dashboard(request):
+    stocks = Stock.objects.annotate(
+        quantity_sold=Coalesce(Sum("sale__quantity"), 0)
+    ).annotate(
+        remaining_quantity=F("quantity_delivered") - F("quantity_sold"),
+        remaining_value=ExpressionWrapper(
+            (F("quantity_delivered") - F("quantity_sold")) * F("unit_cost"),
+            output_field=DecimalField(max_digits=12, decimal_places=2)
+        )
+    )
+
+    total_products = Stock.objects.count()
+    total_stock_value = Stock.objects.aggregate(
+        total=Sum("total_value_goods")
+    )["total"] or 0
+
+    low_stock = stocks.filter(remaining_quantity__lte=5)
+
+    recent_stock = Stock.objects.order_by("-date_added")[:10]
+
+    context = {
+        "stocks": stocks,
+        "total_products": total_products,
+        "total_stock_value": total_stock_value,
+        "low_stock": low_stock,
+        "recent_stock": recent_stock,
+    }
+
+    return render(request, "stock_dashboard.html", context)
+
 
 
 

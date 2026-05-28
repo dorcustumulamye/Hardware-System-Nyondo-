@@ -55,3 +55,5 @@ class CustomLoginView(LoginView):
             return reverse_lazy('stock_list')
 
         return reverse_lazy('login')
+    
+

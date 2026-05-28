@@ -1,65 +1,120 @@
-{% extends 'auth_base.html' %} 
-{% block title %} Register {% endblock %} 
+{% extends 'auth_base.html' %}
+
+{% block title %}Register | Nyondo Hardware{% endblock %}
+
 {% block content %}
 
+<style>
+    .register-title {
+        text-align: center;
+        color: #d97706;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
 
-<div
-  class="container d-flex justify-content-center align-items-center"
-  style="min-height: 80vh"
->
-  <div class="card shadow p-4" style="width: 450px">
-    <h2 class="text-center mb-4">Create Account</h2>
+    .register-subtitle {
+        text-align: center;
+        color: #4b2e05;
+        font-size: 14px;
+        margin-bottom: 25px;
+    }
 
-    <!-- Messages -->
-    {% if messages %} {% for message in messages %}
+    .form-label {
+        font-weight: 600;
+        color: #4b2e05;
+    }
 
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-      {{ message }}
+    input,
+    select {
+        width: 100%;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px;
+    }
 
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
+    input:focus,
+    select:focus {
+        outline: none;
+        border-color: #d97706;
+        box-shadow: 0 0 0 0.2rem rgba(217, 119, 6, 0.15);
+    }
 
-    {% endfor %} {% endif %}
+    .btn-register {
+        background-color: #d97706;
+        border: none;
+        color: white;
+        font-weight: bold;
+        border-radius: 8px;
+        padding: 10px;
+        width: 100%;
+    }
 
-    <form method="POST">
-      {% if form.errors %}
-      <div class="alert alert-danger" role="alert">
+    .btn-register:hover {
+        background-color: #b45309;
+        color: white;
+    }
+
+    .login-link {
+        text-align: center;
+        margin-top: 18px;
+        font-size: 14px;
+    }
+
+    .login-link a {
+        color: #d97706;
+        font-weight: bold;
+        text-decoration: none;
+    }
+
+    .login-link a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<h2 class="register-title">Create Account</h2>
+
+<p class="register-subtitle">
+    Register a staff account for Nyondo Hardware
+</p>
+
+{% if form.errors %}
+    <div class="alert alert-danger">
         {{ form.errors }}
-      </div>
-      {% endif %}
-      {% csrf_token %}
+    </div>
+{% endif %}
 
-      <div class="mb-3">
+<form method="POST">
+    {% csrf_token %}
+
+    <div class="mb-3">
         <label class="form-label">Username</label>
         {{ form.username }}
-      </div>
+    </div>
 
-      <div class="mb-3">
+    <div class="mb-3">
         <label class="form-label">Role</label>
         {{ form.role }}
-      </div>
+    </div>
 
-      <div class="mb-3">
+    <div class="mb-3">
         <label class="form-label">Password</label>
         {{ form.password1 }}
-      </div>
+    </div>
 
-      <div class="mb-3">
+    <div class="mb-3">
         <label class="form-label">Confirm Password</label>
         {{ form.password2 }}
-      </div>
-
-      <button type="submit" class="btn btn-success w-100">Register</button>
-    </form>
-
-    <hr />
-
-    <div class="text-center">
-      <p>Already have an account?</p>
-
-      <a href="{% url 'login' %}" class="btn btn-primary"> Login </a>
     </div>
-  </div>
+
+    <button type="submit" class="btn btn-register">
+        Register
+    </button>
+</form>
+
+<div class="login-link">
+    Already have an account?
+    <a href="{% url 'login' %}">Login here</a>
 </div>
 
 {% endblock %}
+

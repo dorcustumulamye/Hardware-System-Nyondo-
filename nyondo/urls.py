@@ -11,10 +11,10 @@ urlpatterns = [
   path('stock/', views.stock_list, name='stock_list'),
   path('add_stock/', views.add_stock, name='add_stock'),
   path('stock_report/', views.stock_report, name='stock_report'),
-  path("receipts/", views.stock_receipt_list, name="stock_receipt_list"),
-  path("receipts/create/", views.create_stock_receipt, name="create_stock_receipt"),
-  path("receipts/<int:receipt_id>/grn/", views.goods_received_note, name="goods_received_note"),
-  path("receipts/<int:receipt_id>/edit/", views.edit_stock_receipt, name="edit_stock_receipt"),
-  path("receipts/<int:receipt_id>/delete/", views.delete_stock_receipt, name="delete_stock_receipt"),
   path('edit_stock/<int:pk>/', views.edit_stock, name='edit_stock'),
+
+  path('admin_dashboard/', views.admin_dashboard, name='admin_dashboard'),
+  path('sales_dashboard/', views.sales_dashboard, name='sales_dashboard'),
+  path('stock_dashboard/', views.stock_dashboard, name='stock_dashboard'),
+
 ]

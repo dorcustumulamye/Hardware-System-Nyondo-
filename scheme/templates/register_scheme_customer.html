@@ -2,83 +2,163 @@
 
 {% block content %}
 
-<div class="card shadow-sm">
+<div class="container mt-5 d-flex justify-content-center">
 
-    <div class="card-header bg-success text-white">
-        <h3 class="mb-0">Register Scheme Customer</h3>
-    </div>
+    <div class="card shadow p-4" style="width: 500px; border-radius: 15px;">
 
-    <div class="card-body">
+        <h2 class="text-center mb-4">
+            Register Scheme Customer
+        </h2>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-success">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
 
         <form method="POST">
-
             {% csrf_token %}
 
+            <!-- FULL NAME -->
             <div class="mb-3">
-                <label class="form-label">Full Name</label>
+                <label for="full_name" class="form-label">
+                    Full Name
+                </label>
 
-                <input type="text"
-                       name="full_name"
-                       class="form-control"
-                       required>
+                <input
+                    type="text"
+                    name="full_name"
+                    id="full_name"
+                    class="form-control"
+                    value="{{ form_data.full_name }}"
+                    placeholder="Enter full name"
+                >
+
+                {% if errors.full_name_error %}
+                    <small class="text-danger">
+                        {{ errors.full_name_error }}
+                    </small>
+                {% endif %}
             </div>
 
+            <!-- NIN NUMBER -->
             <div class="mb-3">
-                <label class="form-label">NIN Number</label>
+                <label for="nin_number" class="form-label">
+                    NIN Number
+                </label>
 
-                <input type="text"
-                       name="nin_number"
-                       class="form-control"
-                       required>
+                <input
+                    type="text"
+                    name="nin_number"
+                    id="nin_number"
+                    class="form-control"
+                    value="{{ form_data.nin_number }}"
+                    placeholder="CM1234567890AB"
+                >
+
+                {% if errors.nin_error %}
+                    <small class="text-danger">
+                        {{ errors.nin_error }}
+                    </small>
+                {% endif %}
             </div>
 
+            <!-- PHONE NUMBER -->
             <div class="mb-3">
-                <label class="form-label">Phone Number</label>
+                <label for="phone_number" class="form-label">
+                    Phone Number
+                </label>
 
-                <input type="text"
-                       name="phone_number"
-                       class="form-control"
-                       required>
+                <input
+                    type="text"
+                    name="phone_number"
+                    id="phone_number"
+                    class="form-control"
+                    value="{{ form_data.phone_number }}"
+                    placeholder="0781234567"
+                >
+
+                {% if errors.phone_error %}
+                    <small class="text-danger">
+                        {{ errors.phone_error }}
+                    </small>
+                {% endif %}
             </div>
 
+            <!-- ADDRESS -->
             <div class="mb-3">
-                <label class="form-label">Address</label>
+                <label for="address" class="form-label">
+                    Address
+                </label>
 
-                <textarea name="address"
-                          rows="3"
-                          class="form-control"
-                          required></textarea>
+                <input
+                    type="text"
+                    name="address"
+                    id="address"
+                    class="form-control"
+                    value="{{ form_data.address }}"
+                    placeholder="Enter address"
+                >
+
+                {% if errors.address_error %}
+                    <small class="text-danger">
+                        {{ errors.address_error }}
+                    </small>
+                {% endif %}
             </div>
 
+            <!-- OCCUPATION -->
             <div class="mb-3">
-                <label class="form-label">Occupation</label>
+                <label for="occupation" class="form-label">
+                    Occupation
+                </label>
 
-                <input type="text"
-                       name="occupation"
-                       class="form-control">
+                <input
+                    type="text"
+                    name="occupation"
+                    id="occupation"
+                    class="form-control"
+                    value="{{ form_data.occupation }}"
+                    placeholder="Enter occupation"
+                >
+
+                {% if errors.occupation_error %}
+                    <small class="text-danger">
+                        {{ errors.occupation_error }}
+                    </small>
+                {% endif %}
             </div>
 
-            <div class="mb-3">
-                <label class="form-label">Employer Name</label>
+            <!-- EMPLOYER NAME -->
+            <div class="mb-4">
+                <label for="employer_name" class="form-label">
+                    Employer Name
+                </label>
 
-                <input type="text"
-                       name="employer_name"
-                       class="form-control">
+                <input
+                    type="text"
+                    name="employer_name"
+                    id="employer_name"
+                    class="form-control"
+                    value="{{ form_data.employer_name }}"
+                    placeholder="Enter employer name"
+                >
             </div>
 
-            <button type="submit"
-                    class="btn btn-success">
-                Register Customer
-            </button>
-
-            <a href="{% url 'scheme_customer_list' %}"
-               class="btn btn-secondary">
-                Cancel
-            </a>
+            <!-- BUTTON -->
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary">
+                    Register Customer
+                </button>
+            </div>
 
         </form>
 
     </div>
+
 </div>
 
 {% endblock %}
+
