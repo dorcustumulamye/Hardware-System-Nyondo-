@@ -61,7 +61,7 @@
         {% for sale in sales %}
         <tr>
             <td>{{ sale.product.product_name }}</td>
-            <td>{{ sale.product.category.category_name }}</td>
+            <td>{{ sale.product.category }}</td>
             <td>{{ sale.product.unit_price|floatformat:2|intcomma }}</td>
             <td>{{ sale.quantity }}</td>
             <td>{{ sale.total_price|floatformat:2|intcomma }}</td>

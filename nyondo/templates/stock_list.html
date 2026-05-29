@@ -17,11 +17,9 @@ Add Stock
 <thead class="table-dark">
 
 <tr>
-<th>Item Supplier</th>
 <th>Category</th>
 <th>Product</th>
-<th>Item Quantity</th>
-<th>Unit Cost</th>
+<th>Item Qty</th>
 <th>Unit Price</th>
 <th>Total Value</th>
 <th>Payment Status</th>
@@ -37,16 +35,11 @@ Add Stock
 {% for stock in stocks %}
 
 <tr>
-
-<td>{{ stock.supplier }}</td>
-
 <td>{{ stock.category }}</td>
 
 <td>{{ stock.product_name }}</td>
 
 <td>{{ stock.quantity_delivered }}</td>
-
-<td>{{ stock.unit_cost }}</td>
 
 <td>{{ stock.unit_price }}</td>
 
