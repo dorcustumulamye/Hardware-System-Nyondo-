@@ -115,6 +115,26 @@
         }
 
         /* Responsive Design */
+       @media print {
+
+    .sidebar,
+    .navbar,
+    .footer,
+    .btn {
+        display: none !important;
+    }
+
+    body {
+        margin: 0;
+    }
+
+    #receipt {
+        width: 100%;
+        border: none;
+        box-shadow: none;
+    }
+
+}
         @media (max-width: 991px) {
             .layout {
                 flex-direction: column;

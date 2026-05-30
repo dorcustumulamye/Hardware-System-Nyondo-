@@ -15,7 +15,6 @@ def add_stock(request):
 
     if request.method == 'POST':
 
-        # Debug: print all submitted form data
         print("===== FORM DATA RECEIVED =====")
         print(request.POST)
 
@@ -92,7 +91,6 @@ def add_sale(request):
         print("distance_km:", request.POST.get('distance_km'))
         print("transport_required:", request.POST.get('transport_required'))
         print("FULL POST DATA:", request.POST)
-        print("Hi")
         print("================================\n")
 
         product_id = request.POST.get('product')

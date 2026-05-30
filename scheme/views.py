@@ -122,7 +122,7 @@ def scheme_goods_pickup(request, customer_id):
         category__in=[
             "Cement",
             "Iron Sheets",
-            "Bars"
+            "Iron Bars"
         ]
     )
 
