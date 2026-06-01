@@ -2,15 +2,19 @@ from decimal import Decimal
 from django.db.models import Sum, F, ExpressionWrapper, DecimalField
 from django.db.models.functions import Coalesce
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login
 from .models import Sale, Stock
 from scheme.models import SchemeCustomer, SchemePayment, SchemeGoodsPickup
+from users.decorators import admin_or_sales_manager_required, admin_required, stock_manager_required, sales_manager_required, admin_or_stock_manager_required
+from django.contrib.auth.decorators import login_required
 
 
 
 
 # Create your views here.
 #Views for stock management
+
+@login_required
+@admin_or_stock_manager_required
 def add_stock(request):
 
     if request.method == 'POST':
@@ -61,7 +65,8 @@ def add_stock(request):
 
     return render(request, 'add_stock.html')
 
-
+@login_required
+@admin_or_stock_manager_required
 def stock_list(request):
     stocks = Stock.objects.all().order_by('-date_added')
 
@@ -72,12 +77,15 @@ def stock_list(request):
     )
 
 #Views for sales
+@login_required
+@admin_or_sales_manager_required
 def sales_list(request):
     sales = Sale.objects.all().order_by('-date')
     return render(request, 'sales_list.html', {'sales': sales})
 
 
-
+@login_required
+@admin_or_sales_manager_required
 def add_sale(request):
     products = Stock.objects.all()
 
@@ -94,6 +102,35 @@ def add_sale(request):
         print("================================\n")
 
         product_id = request.POST.get('product')
+        quantity = int(request.POST.get('quantity'))
+
+
+        total_received = Stock.objects.filter(
+            id=product_id
+        ).aggregate(
+            total=Coalesce(Sum('quantity_delivered'), 0)
+        )['total'] or 0
+
+
+        total_sold = Sale.objects.filter(
+            product_id=product_id
+        ).aggregate(
+            total=Coalesce(Sum('quantity'), 0)
+        )['total'] or 0
+
+        available_stock = total_received - total_sold
+
+        if quantity > available_stock:
+            error_message = f"Requested quantity ({quantity}) exceeds available stock ({available_stock})."
+            print("ERROR:", error_message)
+            return render(
+                request,
+                'add_sale.html',
+                {
+                    'products': products,
+                    'error': error_message
+                }
+            )
 
         if not product_id:
             print("ERROR: No product selected")
@@ -116,7 +153,7 @@ def add_sale(request):
             new_sale = Sale(
                 customer_name=request.POST.get('customer_name'),
                 product=product,
-                quantity=int(request.POST.get('quantity')),
+                quantity=quantity,
                 payment_method=request.POST.get('payment_method'),
                 distance_km=Decimal(request.POST.get('distance_km') or 0),
                 transport_required=request.POST.get('transport_required') == 'on'
@@ -138,10 +175,14 @@ def add_sale(request):
 
     return render(request, 'add_sale.html', {'products': products})
 
+@login_required
+@admin_or_sales_manager_required
 def sales_receipt(request, sale_id):
     sale = get_object_or_404(Sale, id=sale_id)
     return render(request, 'sales_receipt.html', {'sale': sale})
 
+@login_required
+@sales_manager_required
 def edit_sale(request, sale_id):
 
     sale = get_object_or_404(Sale, id=sale_id)
@@ -166,6 +207,8 @@ def edit_sale(request, sale_id):
 
     return render(request, 'edit_sale.html', {'sale': sale, 'products': products})
 
+@login_required
+@admin_or_stock_manager_required
 def stock_report(request):
     stocks = Stock.objects.annotate(
         quantity_sold=Coalesce(Sum('sale__quantity'), 0)
@@ -179,7 +222,8 @@ def stock_report(request):
 
     return render(request, 'stock_report.html', {'stocks': stocks})
 
-
+@login_required
+@admin_or_sales_manager_required
 def sales_report(request):
     sales = Sale.objects.all().order_by("-date")
 
@@ -208,6 +252,8 @@ def sales_report(request):
         "total_quantity_sold": total_quantity_sold,
     })
 
+@login_required
+@stock_manager_required
 def edit_stock(request, pk):
     stock = get_object_or_404(Stock, id=pk)
 
@@ -227,6 +273,8 @@ def edit_stock(request, pk):
 
     return render(request, "stock_edit.html", {"stock": stock})
 
+@login_required
+@admin_required
 def admin_dashboard(request):
     total_stock_items = Stock.objects.count()
     total_stock_value = Stock.objects.aggregate(
@@ -267,7 +315,8 @@ def admin_dashboard(request):
 
     return render(request, "admin_dashboard.html", context)
 
-
+@login_required
+@admin_or_sales_manager_required
 def sales_dashboard(request):
     total_sales = Sale.objects.aggregate(
         total=Sum("total_price")
@@ -298,7 +347,8 @@ def sales_dashboard(request):
 
     return render(request, "sales_dashboard.html", context)
 
-
+@login_required
+@admin_or_stock_manager_required
 def stock_dashboard(request):
     stocks = Stock.objects.annotate(
         quantity_sold=Coalesce(Sum("sale__quantity"), 0)

@@ -6,14 +6,20 @@ from nyondo.models import Stock
 import re
 from decimal import Decimal
 from django.contrib import messages
+from users.decorators import admin_or_sales_manager_required
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 
+@login_required
+@admin_or_sales_manager_required
 def scheme_customer_list(request):
     customers = SchemeCustomer.objects.all().order_by("-date_registered")
     return render(request, "scheme_customer_list.html", {"customers": customers})
 
 
+@login_required
+@admin_or_sales_manager_required
 def register_scheme_customer(request):
     if request.method == "POST":
         full_name = request.POST.get("full_name", "").strip()
@@ -73,6 +79,8 @@ def register_scheme_customer(request):
     })
 
 
+@login_required
+@admin_or_sales_manager_required
 def record_scheme_payment(request, customer_id):
     customer = get_object_or_404(SchemeCustomer, id=customer_id)
 
@@ -87,12 +95,15 @@ def record_scheme_payment(request, customer_id):
 
     return render(request, "record_scheme_payment.html", {"customer": customer})
 
-
+@login_required
+@admin_or_sales_manager_required
 def scheme_receipt(request, payment_id):
     payment = get_object_or_404(SchemePayment, id=payment_id)
     return render(request, "scheme_receipt.html", {"payment": payment})
 
 
+@login_required
+@admin_or_sales_manager_required
 def customer_scheme_detail(request, customer_id):
     customer = get_object_or_404(SchemeCustomer, id=customer_id)
     payments = SchemePayment.objects.filter(customer=customer)
@@ -115,6 +126,8 @@ def customer_scheme_detail(request, customer_id):
     })
 
 
+@login_required
+@admin_or_sales_manager_required
 def scheme_goods_pickup(request, customer_id):
     customer = get_object_or_404(SchemeCustomer, id=customer_id)
 

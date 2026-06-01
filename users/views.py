@@ -46,14 +46,15 @@ class CustomLoginView(LoginView):
         user = self.request.user
 
         if user.is_superuser or user.groups.filter(name='admin').exists():
-            return reverse_lazy('sales_list')
+            return reverse_lazy('admin_dashboard')
 
         if user.groups.filter(name='sales_manager').exists():
-            return reverse_lazy('sales_list')
+            return reverse_lazy('sales_dashboard')
 
         if user.groups.filter(name='stock_manager').exists():
-            return reverse_lazy('stock_list')
+            return reverse_lazy('stock_dashboard')
 
         return reverse_lazy('login')
+    
     
 

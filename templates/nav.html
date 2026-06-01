@@ -4,23 +4,31 @@
     Nyondo Hardware
   </div>
 
+  {% if user.groups.all.0.name == 'admin' or user.is_superuser %}
   <div class="sidebar-section">Dashboards</div>
   <a href="{% url 'admin_dashboard' %}">Admin Dashboard</a>
-  <a href="{% url 'sales_dashboard' %}">Sales Dashboard</a>
-  <a href="{% url 'stock_dashboard' %}">Stock Dashboard</a>
+  {% endif %}
 
+   {% if user.groups.all.0.name == 'stock_manager' or user.is_superuser or user.groups.all.0.name == 'admin' %}
   <div class="sidebar-section">Stock Management</div>
+  <a href="{% url 'stock_dashboard' %}">Stock Dashboard</a>
   <a href="{% url 'stock_list' %}">Stock List</a>
   <a href="{% url 'add_stock' %}">Add Stock</a>
   <a href="{% url 'stock_report' %}">Stock Report</a>
+  {% endif %}
 
+   {% if user.groups.all.0.name == 'sales_manager' or user.is_superuser or user.groups.all.0.name == 'admin' %}
   <div class="sidebar-section">Sales Management</div>
+   <a href="{% url 'sales_dashboard' %}">Sales Dashboard</a>
   <a href="{% url 'sales_list' %}">Sales List</a>
   <a href="{% url 'add_sale' %}">Add Sale</a>
   <a href="{% url 'sales_report' %}">Sales Report</a>
+  {% endif %}
 
+  {% if user.groups.all.0.name == 'admin' or user.groups.all.0.name == 'sales_manager' or user.is_superuser %}
   <div class="sidebar-section">Scheme Management</div>
   <a href="{% url 'scheme_customer_list' %}">Scheme Customers</a>
   <a href="{% url 'register_scheme_customer' %}">Register Customer</a>
+  {% endif %}
 
 </div>
