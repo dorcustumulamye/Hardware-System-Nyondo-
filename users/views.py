@@ -38,23 +38,23 @@ def register(request):
 
     return render(request, 'registration/register.html', {'form': form})
 
-class CustomLoginView(LoginView):
 
+class CustomLoginView(LoginView):
     template_name = 'registration/login.html'
-    
+
     def get_success_url(self):
         user = self.request.user
 
         if user.is_superuser or user.groups.filter(name='admin').exists():
             return reverse_lazy('admin_dashboard')
 
-        if user.groups.filter(name='sales_manager').exists():
+        elif user.groups.filter(name='sales_manager').exists():
             return reverse_lazy('sales_dashboard')
 
-        if user.groups.filter(name='stock_manager').exists():
+        elif user.groups.filter(name='stock_manager').exists():
             return reverse_lazy('stock_dashboard')
 
-        return reverse_lazy('login')
+        return reverse_lazy('home')
     
     
 

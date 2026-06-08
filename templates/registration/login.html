@@ -45,61 +45,83 @@
         color: white;
     }
 
+    .error-text {
+        color: red;
+        font-size: 13px;
+        margin-top: 5px;
+    }
+
+    .error-box {
+        background: #ffe5e5;
+        padding: 10px;
+        border-radius: 6px;
+        color: #b00020;
+        margin-bottom: 15px;
+        font-size: 14px;
+    }
+
     .auth-small {
         text-align: center;
         margin-top: 18px;
         font-size: 13px;
         color: #8b5e3c;
     }
-
-    .register-link {
-        text-align: center;
-        margin-top: 15px;
-        font-size: 14px;
-    }
-
-    .register-link a {
-        color: #d97706;
-        font-weight: bold;
-        text-decoration: none;
-    }
-
-    .register-link a:hover {
-        text-decoration: underline;
-    }
 </style>
 
-<h2 class="login-title">
-    NYONDO HARDWARE
-</h2>
+<h2 class="login-title">NYONDO HARDWARE</h2>
+<p class="login-subtitle">Construction & Building Materials System</p>
 
-<p class="login-subtitle">
-    Construction & Building Materials System
-</p>
+<!-- NON FIELD ERRORS (invalid login etc.) -->
+{% if form.non_field_errors %}
+    <div class="error-box">
+        {% for error in form.non_field_errors %}
+            {{ error }}
+        {% endfor %}
+    </div>
+{% endif %}
 
-<form method="POST">
+<form method="POST" novalidate>
     {% csrf_token %}
 
+    <!-- USERNAME -->
     <div class="mb-3">
         <label class="form-label">Username</label>
+
         <input
             type="text"
             name="username"
             class="form-control"
             placeholder="Enter username"
-            required
+            value="{{ form.username.value|default:'' }}"
         >
+
+        {% if form.username.errors %}
+            <div class="error-text">
+                {% for error in form.username.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
     </div>
 
+    <!-- PASSWORD -->
     <div class="mb-3">
         <label class="form-label">Password</label>
+
         <input
             type="password"
             name="password"
             class="form-control"
             placeholder="Enter password"
-            required
         >
+
+        {% if form.password.errors %}
+            <div class="error-text">
+                {% for error in form.password.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
     </div>
 
     <button type="submit" class="btn btn-login">
@@ -107,15 +129,8 @@
     </button>
 </form>
 
-<!-- <div class="register-link">
-    Don’t have an account?
-    <a href="{% url 'register' %}">Register here</a>
-</div> -->
-
 <div class="auth-small">
-    Authorized Staff Only • Nansana Uganda
+    Authorized Staff Only • Nansana, Uganda
 </div>
 
 {% endblock %}
-
-

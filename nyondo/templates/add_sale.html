@@ -1,82 +1,174 @@
-{% extends 'base.html' %}{% block content %}
+{% extends 'base.html' %}
+{% block content %}
+
 <div class="card shadow-sm p-4">
+
   <h2 class="mb-4">Sales Registration Form</h2>
-  {% if error %}
-  <div class="alert alert-danger" role="alert">{{ error }}</div>
+
+  <!-- NON FIELD ERROR (server-side errors like stock issues, etc.) -->
+  {% if form.non_field_errors %}
+    <div class="alert alert-danger">
+      {% for error in form.non_field_errors %}
+        {{ error }}
+      {% endfor %}
+    </div>
   {% endif %}
-  <form method="POST" action="{% url 'add_sale' %}">
+
+  <!-- CUSTOM ERROR (if you still pass "error" from view) -->
+  {% if error %}
+    <div class="alert alert-danger">
+      {{ error }}
+    </div>
+  {% endif %}
+
+  <form method="POST" action="{% url 'add_sale' %}" novalidate>
     {% csrf_token %}
+
     <h5 class="mb-3">Customer Information</h5>
+
     <div class="row mb-3">
+
+      <!-- CUSTOMER NAME -->
       <div class="col-md-6">
-        <label class="form-label">Customer Name</label
-        ><input
+        <label class="form-label">Customer Name</label>
+        <input
           type="text"
           name="customer_name"
           class="form-control"
           placeholder="Enter customer name"
-          required
-        />
+          value="{{ form.customer_name.value|default:'' }}"
+        >
+
+        {% if form.customer_name.errors %}
+          <div class="text-danger small mt-1">
+            {% for error in form.customer_name.errors %}
+              {{ error }}
+            {% endfor %}
+          </div>
+        {% endif %}
       </div>
+
+      <!-- PAYMENT METHOD -->
       <div class="col-md-6">
-        <label class="form-label">Payment Method</label
-        ><select name="payment_method" class="form-select" required>
+        <label class="form-label">Payment Method</label>
+
+        <select name="payment_method" class="form-select">
           <option value="">Select Payment Method</option>
-          <option value="Cash">Cash</option>
-          <option value="Mobile Money">Mobile Money</option>
-          <option value="Bank Transfer">Bank Transfer</option>
-          <option value="Credit">Credit</option>
+          <option value="Cash" {% if form.payment_method.value == "Cash" %}selected{% endif %}>Cash</option>
+          <option value="Mobile Money" {% if form.payment_method.value == "Mobile Money" %}selected{% endif %}>Mobile Money</option>
+          <option value="Bank Transfer" {% if form.payment_method.value == "Bank Transfer" %}selected{% endif %}>Bank Transfer</option>
+          <option value="Credit" {% if form.payment_method.value == "Credit" %}selected{% endif %}>Credit</option>
         </select>
+
+        {% if form.payment_method.errors %}
+          <div class="text-danger small mt-1">
+            {% for error in form.payment_method.errors %}
+              {{ error }}
+            {% endfor %}
+          </div>
+        {% endif %}
       </div>
+
     </div>
+
     <h5 class="mb-3 mt-4">Product Details</h5>
+
     <div class="row mb-3">
+
+      <!-- PRODUCT -->
       <div class="col-md-6">
-        <label class="form-label">Product Name</label
-        ><select name="product" class="form-select" required>
+        <label class="form-label">Product Name</label>
+
+        <select name="product" class="form-select">
           <option value="">Select Product</option>
+
           {% for product in products %}
-          <option value="{{ product.id }}">
-            {{ product.product_name }} - UGX {{ product.unit_price }}
-          </option>
+            <option value="{{ product.id }}"
+              {% if form.product.value == product.id|stringformat:"s" %}selected{% endif %}>
+              {{ product.product_name }} - UGX {{ product.unit_price }}
+            </option>
           {% endfor %}
         </select>
+
+        {% if form.product.errors %}
+          <div class="text-danger small mt-1">
+            {% for error in form.product.errors %}
+              {{ error }}
+            {% endfor %}
+          </div>
+        {% endif %}
       </div>
+
+      <!-- QUANTITY -->
       <div class="col-md-6">
-        <label class="form-label">Quantity</label
-        ><input
+        <label class="form-label">Quantity</label>
+
+        <input
           type="number"
           name="quantity"
           class="form-control"
           min="1"
-          required
-        />
+          value="{{ form.quantity.value|default:'' }}"
+        >
+
+        {% if form.quantity.errors %}
+          <div class="text-danger small mt-1">
+            {% for error in form.quantity.errors %}
+              {{ error }}
+            {% endfor %}
+          </div>
+        {% endif %}
       </div>
+
     </div>
+
     <h5 class="mb-3 mt-4">Transport Details</h5>
+
     <div class="row mb-4">
+
+      <!-- DISTANCE -->
       <div class="col-md-6">
-        <label class="form-label">Distance (KM)</label
-        ><input
+        <label class="form-label">Distance (KM)</label>
+
+        <input
           type="number"
           name="distance_km"
           class="form-control"
           step="0.01"
           min="0"
-          value="0"
-        />
+          value="{{ form.distance_km.value|default:0 }}"
+        >
+
+        {% if form.distance_km.errors %}
+          <div class="text-danger small mt-1">
+            {% for error in form.distance_km.errors %}
+              {{ error }}
+            {% endfor %}
+          </div>
+        {% endif %}
       </div>
+
+      <!-- TRANSPORT -->
       <div class="col-md-6 d-flex align-items-center">
         <div class="form-check mt-4">
           <input
             type="checkbox"
             name="transport_required"
             class="form-check-input"
-          /><label class="form-check-label">Transport Required</label>
+            {% if form.transport_required.value %}checked{% endif %}
+          >
+          <label class="form-check-label">Transport Required</label>
         </div>
       </div>
+
     </div>
-    <button type="submit" class="btn btn-dark">Save Sale</button>
+
+    <button type="submit" class="btn btn-dark">
+      Save Sale
+    </button>
+
   </form>
+
 </div>
+
 {% endblock %}

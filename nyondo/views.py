@@ -11,8 +11,8 @@ from django.contrib.auth.decorators import login_required
 
 
 # Create your views here.
-#Views for stock management
 
+#Views for stock management
 @login_required
 @admin_or_stock_manager_required
 def add_stock(request):
@@ -84,6 +84,96 @@ def sales_list(request):
     return render(request, 'sales_list.html', {'sales': sales})
 
 
+# @login_required
+# @admin_or_sales_manager_required
+# def add_sale(request):
+#     products = Stock.objects.all()
+
+#     if request.method == 'POST':
+
+#         print("\n========== FORM DATA ==========")
+#         print("customer_name:", request.POST.get('customer_name'))
+#         print("product:", request.POST.get('product'))
+#         print("quantity:", request.POST.get('quantity'))
+#         print("payment_method:", request.POST.get('payment_method'))
+#         print("distance_km:", request.POST.get('distance_km'))
+#         print("transport_required:", request.POST.get('transport_required'))
+#         print("FULL POST DATA:", request.POST)
+#         print("================================\n")
+
+#         product_id = request.POST.get('product')
+#         quantity = int(request.POST.get('quantity'))
+
+
+#         total_received = Stock.objects.filter(
+#             id=product_id
+#         ).aggregate(
+#             total=Coalesce(Sum('quantity_delivered'), 0)
+#         )['total'] or 0
+
+
+#         total_sold = Sale.objects.filter(
+#             product_id=product_id
+#         ).aggregate(
+#             total=Coalesce(Sum('quantity'), 0)
+#         )['total'] or 0
+
+#         available_stock = total_received - total_sold
+
+#         if quantity > available_stock:
+#             error_message = f"Requested quantity ({quantity}) exceeds available stock ({available_stock})."
+#             print("ERROR:", error_message)
+#             return render(
+#                 request,
+#                 'add_sale.html',
+#                 {
+#                     'products': products,
+#                     'error': error_message
+#                 }
+#             )
+
+#         if not product_id:
+#             print("ERROR: No product selected")
+#             return render(
+#                 request,
+#                 'add_sale.html',
+#                 {
+#                     'products': products,
+#                     'error': 'Please select a product.'
+#                 }
+#             )
+
+#         product = get_object_or_404(Stock, id=product_id)
+
+#         print("Selected Product:", product)
+#         print("Product ID:", product.id)
+#         print("Available Quantity:", product.quantity_delivered)
+
+#         try:
+#             new_sale = Sale(
+#                 customer_name=request.POST.get('customer_name'),
+#                 product=product,
+#                 quantity=quantity,
+#                 payment_method=request.POST.get('payment_method'),
+#                 distance_km=Decimal(request.POST.get('distance_km') or 0),
+#                 transport_required=request.POST.get('transport_required') == 'on'
+#             )
+
+#             print("Sale object created successfully")
+
+#             new_sale.update_total_price()
+
+#             print("Sale saved successfully")
+#             print("Sale ID:", new_sale.id)
+#             print("Total Price:", new_sale.total_price)
+
+#             return redirect('sales_receipt', sale_id=new_sale.id)
+
+#         except Exception as e:
+#             print("ERROR OCCURRED:", str(e))
+#             raise
+
+#     return render(request, 'add_sale.html', {'products': products})
 @login_required
 @admin_or_sales_manager_required
 def add_sale(request):
@@ -91,26 +181,63 @@ def add_sale(request):
 
     if request.method == 'POST':
 
+        customer_name = request.POST.get('customer_name', '').strip()
+        product_id = request.POST.get('product')
+        quantity_raw = request.POST.get('quantity')
+        payment_method = request.POST.get('payment_method', '')
+        distance_raw = request.POST.get('distance_km', 0)
+        transport_required = request.POST.get('transport_required') == 'on'
+
         print("\n========== FORM DATA ==========")
-        print("customer_name:", request.POST.get('customer_name'))
-        print("product:", request.POST.get('product'))
-        print("quantity:", request.POST.get('quantity'))
-        print("payment_method:", request.POST.get('payment_method'))
-        print("distance_km:", request.POST.get('distance_km'))
-        print("transport_required:", request.POST.get('transport_required'))
-        print("FULL POST DATA:", request.POST)
+        print(request.POST)
         print("================================\n")
 
-        product_id = request.POST.get('product')
-        quantity = int(request.POST.get('quantity'))
+        # ---------------- VALIDATION ----------------
+        if not customer_name:
+            return render(request, 'add_sale.html', {
+                'products': products,
+                'error': 'Customer name is required'
+            })
 
+        if not product_id:
+            return render(request, 'add_sale.html', {
+                'products': products,
+                'error': 'Please select a product'
+            })
 
+        if not payment_method:
+            return render(request, 'add_sale.html', {
+                'products': products,
+                'error': 'Payment method is required'
+            })
+
+        if not quantity_raw:
+            return render(request, 'add_sale.html', {
+                'products': products,
+                'error': 'Quantity is required'
+            })
+
+        # SAFE INTEGER CONVERSION
+        try:
+            quantity = int(quantity_raw)
+        except ValueError:
+            return render(request, 'add_sale.html', {
+                'products': products,
+                'error': 'Quantity must be a valid number'
+            })
+
+        if quantity <= 0:
+            return render(request, 'add_sale.html', {
+                'products': products,
+                'error': 'Quantity must be greater than 0'
+            })
+
+        # ---------------- STOCK CHECK ----------------
         total_received = Stock.objects.filter(
             id=product_id
         ).aggregate(
             total=Coalesce(Sum('quantity_delivered'), 0)
         )['total'] or 0
-
 
         total_sold = Sale.objects.filter(
             product_id=product_id
@@ -121,57 +248,41 @@ def add_sale(request):
         available_stock = total_received - total_sold
 
         if quantity > available_stock:
-            error_message = f"Requested quantity ({quantity}) exceeds available stock ({available_stock})."
-            print("ERROR:", error_message)
-            return render(
-                request,
-                'add_sale.html',
-                {
-                    'products': products,
-                    'error': error_message
-                }
-            )
+            return render(request, 'add_sale.html', {
+                'products': products,
+                'error': f'Requested quantity ({quantity}) exceeds available stock ({available_stock})'
+            })
 
-        if not product_id:
-            print("ERROR: No product selected")
-            return render(
-                request,
-                'add_sale.html',
-                {
-                    'products': products,
-                    'error': 'Please select a product.'
-                }
-            )
-
+        # ---------------- GET PRODUCT ----------------
         product = get_object_or_404(Stock, id=product_id)
 
-        print("Selected Product:", product)
-        print("Product ID:", product.id)
-        print("Available Quantity:", product.quantity_delivered)
-
         try:
+            distance_km = Decimal(distance_raw or 0)
+
             new_sale = Sale(
-                customer_name=request.POST.get('customer_name'),
+                customer_name=customer_name,
                 product=product,
                 quantity=quantity,
-                payment_method=request.POST.get('payment_method'),
-                distance_km=Decimal(request.POST.get('distance_km') or 0),
-                transport_required=request.POST.get('transport_required') == 'on'
+                payment_method=payment_method,
+                distance_km=distance_km,
+                transport_required=transport_required
             )
 
-            print("Sale object created successfully")
+            new_sale.save()   # IMPORTANT: ensure object is saved before using ID
 
             new_sale.update_total_price()
 
             print("Sale saved successfully")
             print("Sale ID:", new_sale.id)
-            print("Total Price:", new_sale.total_price)
 
             return redirect('sales_receipt', sale_id=new_sale.id)
 
         except Exception as e:
             print("ERROR OCCURRED:", str(e))
-            raise
+            return render(request, 'add_sale.html', {
+                'products': products,
+                'error': 'Something went wrong while saving the sale'
+            })
 
     return render(request, 'add_sale.html', {'products': products})
 
